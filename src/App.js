@@ -1,19 +1,17 @@
 import React from 'react';
-import { HashRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Home from './Home';
 import Admin from './Admin';
 import Chat from './Chat';
-import './index.css'; // Include Tailwind CSS
+import './index.css';
 
 function App() {
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/chat" element={<Chat />} />
-            </Routes>
-        </Router>
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/chat" element={<Chat />} />
+        </Routes>
     );
 }
 
