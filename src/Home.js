@@ -6,7 +6,7 @@ import {
     faSun, faMoon, faUser, faComments, faMapMarkerAlt, faPhone, 
     faChevronLeft, faChevronRight, faEnvelope 
 } from '@fortawesome/free-solid-svg-icons';
-
+import logo from './images/logo.jpg';
 const Home = () => {
     const navigate = useNavigate();
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -15,17 +15,14 @@ const Home = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     
-    // Create a ref for the footer
     const footerRef = useRef(null);
 
-    // Scroll to footer function
     const scrollToContact = () => {
         if (footerRef.current) {
             footerRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
-    // Responsive slideshow configuration
     const getSlideConfig = useCallback(() => {
         const baseConfig = {
             mobile: {
@@ -42,7 +39,6 @@ const Home = () => {
         return windowWidth < 768 ? baseConfig.mobile : baseConfig.desktop;
     }, [windowWidth]);
 
-    // Responsive resize handler
     useEffect(() => {
         const handleResize = () => {
             setWindowWidth(window.innerWidth);
@@ -52,7 +48,6 @@ const Home = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch slides and products
     useEffect(() => {
         const fetchSlides = async () => {
             const { data, error } = await supabase
@@ -83,7 +78,6 @@ const Home = () => {
         fetchProducts();
     }, []);
 
-    // Autoplay logic with pause on hover
     useEffect(() => {
         let intervalId;
         if (slides.length > 1) {
@@ -97,7 +91,6 @@ const Home = () => {
         };
     }, [slides.length]);
 
-    // Slide navigation methods
     const nextSlide = useCallback(() => {
         setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, [slides.length]);
@@ -106,7 +99,6 @@ const Home = () => {
         setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
     }, [slides.length]);
 
-    // Theme and interaction methods
     const toggleTheme = () => {
         setIsDarkMode((prev) => !prev);
         document.documentElement.classList.toggle('dark', !isDarkMode);
@@ -131,22 +123,27 @@ const Home = () => {
         createProductInquirySession();
     };
 
-    // Slide config based on window width
     const slideConfig = getSlideConfig();
 
     return (
         <div className={`min-h-screen flex flex-col bg-amber-50 dark:bg-dark-bg dark:text-dark-text transition-colors ${isDarkMode ? 'dark' : ''}`}>
-            {/* Sticky Navigation */}
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-dark-card shadow-lg">
                 <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <img src="/Images/logo.jpg" alt="LAIM BAKERY Logo" className="h-8 w-8 md:h-10 md:w-10 rounded-full" />
+                        <img 
+                            src={logo} 
+                            alt="LAIM BAKERY Logo" 
+                            className="h-8 w-8 md:h-10 md:w-10 rounded-full"
+                            onError={(e) => {
+                                console.error('Error loading logo:', e);
+                                e.target.onerror = null;
+                            }} 
+                        />
                         <h1 className="text-lg md:text-2xl font-bold text-amber-600 dark:text-dark-accent">
                             <Link to="/">LAIM BAKERY AND PASTRY</Link>
                         </h1>
                     </div>
                     <div className="flex items-center gap-2 md:gap-4">
-                        {/* New Contact Button */}
                         <button 
                             onClick={scrollToContact} 
                             className="p-1 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
@@ -192,7 +189,6 @@ const Home = () => {
                 </div>
             </nav>
 
-            {/* Slideshow with Responsive Design */}
             <div className="relative w-full overflow-hidden mb-8 mt-16" style={slideConfig}>
                 <div 
                     className="flex transition-transform duration-500 h-full" 
@@ -215,7 +211,6 @@ const Home = () => {
                     )}
                 </div>
 
-                {/* Navigation Buttons */}
                 {slides.length > 1 && (
                     <>
                         <button 
@@ -233,14 +228,12 @@ const Home = () => {
                     </>
                 )}
 
-                {/* Slide Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 md:p-8">
                     <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-4">Fresh Bakes Daily</h2>
                     <p className="text-xs md:text-base text-gray-200">Artisanal Pastries & Custom Cakes</p>
                 </div>
             </div>
 
-            {/* Products Grid */}
             <div className="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {products.length > 0 ? (
@@ -287,15 +280,18 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* Footer - Add ref to footer */}
             <footer ref={footerRef} className="bg-amber-100 dark:bg-dark-card transition-colors">
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
                         <div className="text-center md:text-left">
                             <img 
-                                src="/Images/logo.jpg" 
+                                src={logo}
                                 alt="LAIM BAKERY Logo" 
-                                className="h-16 md:h-24 mx-auto md:mx-0 mb-2 md:mb-4 rounded-full" 
+                                className="h-16 md:h-24 mx-auto md:mx-0 mb-2 md:mb-4 rounded-full"
+                                onError={(e) => {
+                                    console.error('Error loading logo:', e);
+                                    e.target.onerror = null;
+                                }}
                             />
                             <h3 className="text-lg md:text-xl font-bold text-amber-600 dark:text-dark-accent mb-1 md:mb-2">
                                 LAIM BAKERY AND PASTRY

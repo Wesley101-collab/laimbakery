@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Route, Routes } from 'react-router-dom'; // Changed to HashRouter
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './Home';
 import Admin from './Admin';
 import Chat from './Chat';
