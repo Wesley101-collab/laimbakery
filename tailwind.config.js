@@ -14,5 +14,6 @@ module.exports = {
       }
     }
   },
+  base: "/laimbakeryandpastry/",
   plugins: [],
 }
