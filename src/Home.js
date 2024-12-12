@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faSun, faMoon, faUser, faComments, faMapMarkerAlt, faPhone, 
-    faChevronLeft, faChevronRight 
+    faChevronLeft, faChevronRight, faEnvelope 
 } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
@@ -14,6 +14,16 @@ const Home = () => {
     const [products, setProducts] = useState([]);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    
+    // Create a ref for the footer
+    const footerRef = useRef(null);
+
+    // Scroll to footer function
+    const scrollToContact = () => {
+        if (footerRef.current) {
+            footerRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     // Responsive slideshow configuration
     const getSlideConfig = useCallback(() => {
@@ -136,6 +146,18 @@ const Home = () => {
                         </h1>
                     </div>
                     <div className="flex items-center gap-2 md:gap-4">
+                        {/* New Contact Button */}
+                        <button 
+                            onClick={scrollToContact} 
+                            className="p-1 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
+                            title="Contact Information"
+                        >
+                            <FontAwesomeIcon 
+                                icon={faEnvelope} 
+                                className="text-sm md:text-base text-gray-600 dark:text-gray-300" 
+                            />
+                        </button>
+
                         <button 
                             onClick={toggleTheme} 
                             className="p-1 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
@@ -265,8 +287,8 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* Footer */}
-            <footer className="bg-amber-100 dark:bg-dark-card transition-colors">
+            {/* Footer - Add ref to footer */}
+            <footer ref={footerRef} className="bg-amber-100 dark:bg-dark-card transition-colors">
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
                         <div className="text-center md:text-left">
@@ -300,6 +322,14 @@ const Home = () => {
                                 <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
                                     <FontAwesomeIcon icon={faPhone} className="text-amber-500 mr-2 text-sm" />
                                     07074588770
+                                </p>
+                                <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
+                                    <FontAwesomeIcon icon={faEnvelope} className="text-amber-500 mr-2 text-sm" />
+                                    info@laimbakery.com
+                                </p>
+                                <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
+                                    <FontAwesomeIcon icon={faEnvelope} className="text-amber-500 mr-2 text-sm" />
+                                    reservations@laimbakery.com
                                 </p>
                             </div>
                         </div>

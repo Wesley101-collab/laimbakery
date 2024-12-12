@@ -1,11 +1,9 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom'; // Changed to HashRouter
 import Home from './Home';
 import Admin from './Admin';
 import Chat from './Chat';
 import './index.css'; // Include Tailwind CSS
-
 
 function App() {
     return (
