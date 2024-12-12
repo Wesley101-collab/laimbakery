@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/github.io/laimbakery/static/css/main.63c20365.css",
+    "main.js": "/github.io/laimbakery/static/js/main.0e84e168.js",
+    "static/js/952.a05a5f3d.chunk.js": "/github.io/laimbakery/static/js/952.a05a5f3d.chunk.js",
+    "static/media/logo.jpg": "/github.io/laimbakery/static/media/logo.e9a6678e328172c6abaa.jpg",
+    "index.html": "/github.io/laimbakery/index.html",
+    "main.63c20365.css.map": "/github.io/laimbakery/static/css/main.63c20365.css.map",
+    "main.0e84e168.js.map": "/github.io/laimbakery/static/js/main.0e84e168.js.map",
+    "952.a05a5f3d.chunk.js.map": "/github.io/laimbakery/static/js/952.a05a5f3d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.63c20365.css",
+    "static/js/main.0e84e168.js"
+  ]
+}
