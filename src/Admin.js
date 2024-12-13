@@ -125,73 +125,70 @@ const Admin = () => {
     const handleAddOrUpdateProduct = async (e) => {
         e.preventDefault();
         setIsLoading(prev => ({ ...prev, addProduct: true }));
-        const fileInput = document.getElementById('productImage');
-        const file = fileInput.files[0];
-        const productName = document.getElementById('productName').value;
-        const productPrice = parseFloat(document.getElementById('productPrice').value);
-        const productCategory = document.getElementById('productCategory').value;
-        const productStatus = document.getElementById('productStatus').value;
-        const productDescription = document.getElementById('productDescription').value;
-    
-        let imageUrl = editingProduct ? editingProduct.image : ''; // Use existing image if editing
-    
-        // Upload image only if a new file is selected
-        if (file) {
-            const fileName = `${Date.now()}_${file.name}`;
-            const {  uploadData, error: uploadError } = await supabase.storage
-                .from('images')
-                .upload(`products/${fileName}`, file);
-    
-            if (uploadError) {
-                console.error('Error uploading image:', uploadError);
-                setIsLoading(prev => ({ ...prev, addProduct: false }));
-                return;
-            }
-    
-            // Correctly get the public URL
-            const {  urlData } = supabase.storage
-                .from('images')
-                .getPublicUrl(`products/${fileName}`);
-    
-            // Make sure to access publicUrl correctly
-            imageUrl = urlData?.publicUrl || urlData?.url;
-    
-            if (!imageUrl) {
-                console.error('Could not retrieve public URL');
-                setIsLoading(prev => ({ ...prev, addProduct: false }));
-                return;
-            }
-        }
-    
-        const newProduct = {
-            name: productName,
-            price: productPrice,
-            category: productCategory,
-            status: productStatus,
-            description: productDescription,
-            image: imageUrl, // This will be the new image or the existing image
-        };
-    
+        
         try {
-            if (editingProduct) {
-                await supabase.from('Products').update(newProduct).eq('id', editingProduct.id);
-                setEditingProduct(null);
-            } else {
-                await supabase.from('Products').insert([newProduct]);
+            const fileInput = document.getElementById('productImage');
+            const file = fileInput.files[0];
+            const productName = document.getElementById('productName').value;
+            const productPrice = parseFloat(document.getElementById('productPrice').value);
+            const productCategory = document.getElementById('productCategory').value;
+            const productStatus = document.getElementById('productStatus').value;
+            const productDescription = document.getElementById('productDescription').value;
+    
+            let imageUrl = editingProduct ? editingProduct.image : '';
+    
+            if (file) {
+                const fileName = `${Date.now()}_${file.name}`;
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('images')
+                    .upload(`products/${fileName}`, file);
+    
+                if (uploadError) {
+                    console.error('Error uploading image:', uploadError);
+                    throw uploadError;
+                }
+    
+                // Get the public URL correctly
+                const { data } = supabase.storage
+                    .from('images')
+                    .getPublicUrl(`products/${fileName}`);
+    
+                imageUrl = data.publicUrl;
             }
-            
+    
+            if (!productName || !productPrice || !productCategory || !productStatus) {
+                throw new Error('Please fill in all required fields');
+            }
+    
+            const newProduct = {
+                name: productName,
+                price: productPrice,
+                category: productCategory,
+                status: productStatus,
+                description: productDescription,
+                image: imageUrl,
+            };
+    
+            const { data, error } = editingProduct 
+                ? await supabase.from('Products').update(newProduct).eq('id', editingProduct.id)
+                : await supabase.from('Products').insert([newProduct]);
+    
+            if (error) throw error;
+    
             // Refresh products list
-            const { data, error } = await supabase.from('Products').select('*');
-            if (error) {
-                console.error('Error fetching products:', error);
-            } else {
-                setProducts(data);
-            }
+            const { data: updatedProducts, error: fetchError } = await supabase.from('Products').select('*');
+            if (fetchError) throw fetchError;
+            
+            setProducts(updatedProducts);
+            setTotalProducts(updatedProducts.length);
             
             alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
-            e.target.reset(); // Reset form fields
+            e.target.reset();
+            setEditingProduct(null);
+    
         } catch (error) {
             console.error('Error adding/updating product:', error);
+            alert(error.message || 'Error adding/updating product. Please try again.');
         } finally {
             setIsLoading(prev => ({ ...prev, addProduct: false }));
         }
