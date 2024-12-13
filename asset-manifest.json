@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/laimbakery/static/css/main.63c20365.css",
-    "main.js": "/laimbakery/static/js/main.6a3d00ba.js",
+    "main.js": "/laimbakery/static/js/main.b4910b87.js",
     "static/js/952.a05a5f3d.chunk.js": "/laimbakery/static/js/952.a05a5f3d.chunk.js",
     "static/media/logo.jpg": "/laimbakery/static/media/logo.e9a6678e328172c6abaa.jpg",
     "index.html": "/laimbakery/index.html",
     "main.63c20365.css.map": "/laimbakery/static/css/main.63c20365.css.map",
-    "main.6a3d00ba.js.map": "/laimbakery/static/js/main.6a3d00ba.js.map",
+    "main.b4910b87.js.map": "/laimbakery/static/js/main.b4910b87.js.map",
     "952.a05a5f3d.chunk.js.map": "/laimbakery/static/js/952.a05a5f3d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.63c20365.css",
-    "static/js/main.6a3d00ba.js"
+    "static/js/main.b4910b87.js"
   ]
 }
