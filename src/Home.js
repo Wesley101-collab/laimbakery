@@ -23,6 +23,11 @@ const Home = () => {
         }
     };
 
+    const handleEmailClick = (email) => {
+        // This will open the user's default email client
+        window.location.href = `mailto:${email}`;
+    };
+
     const getSlideConfig = useCallback(() => {
         const baseConfig = {
             mobile: {
@@ -319,11 +324,13 @@ const Home = () => {
                                     <FontAwesomeIcon icon={faPhone} className="text-amber-500 mr-2 text-sm" />
                                     07074588770
                                 </p>
-                                <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
+                                <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-amber-700 transition-colors"
+                                onClick={() => handleEmailClick('info@laimbakery.com')}>
                                     <FontAwesomeIcon icon={faEnvelope} className="text-amber-500 mr-2 text-sm" />
                                     info@laimbakery.com
                                 </p>
-                                <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
+                                <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-amber-700 transition-colors"
+                                onClick={() => handleEmailClick('reservations@laimbakery.com')}>
                                     <FontAwesomeIcon icon={faEnvelope} className="text-amber-500 mr-2 text-sm" />
                                     reservations@laimbakery.com
                                 </p>
