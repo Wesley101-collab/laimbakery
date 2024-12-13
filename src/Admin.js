@@ -111,6 +111,17 @@ const Admin = () => {
         // Already handled by Supabase fetchProducts
     };
 
+    const scrollToManageProducts = () => {
+        const manageProductsSection = document.querySelector('.bg-white.rounded-lg.shadow-xl.p-4.md\\:p-6:nth-child(3)');
+        if (manageProductsSection) {
+            manageProductsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    const handleActiveOrdersClick = () => {
+        alert('Active Orders section is coming soon!');
+    };
+
     const handleAddOrUpdateProduct = async (e) => {
         e.preventDefault();
         setIsLoading(prev => ({ ...prev, addProduct: true }));
@@ -429,13 +440,16 @@ const Admin = () => {
                                 title: 'Total Products', 
                                 value: totalProducts, 
                                 icon: faBoxOpen, 
-                                color: 'bg-blue-100 text-blue-600' 
+                                color: 'bg-blue-100 text-blue-600',
+                                onClick: scrollToManageProducts 
                             },
                             { 
                                 title: 'Active Orders', 
                                 value: activeOrders, 
                                 icon: faShoppingCart, 
-                                color: 'bg-green-100 text-green-600' 
+                                color: 'bg-green-100 text-green-600',
+                                onClick: handleActiveOrdersClick
+                                 
                             },
                             { 
                                 title: 'Pending Chats', 
