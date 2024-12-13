@@ -133,12 +133,12 @@ const Admin = () => {
         const productStatus = document.getElementById('productStatus').value;
         const productDescription = document.getElementById('productDescription').value;
     
-        let imageUrl = '';
+        let imageUrl = editingProduct ? editingProduct.image : ''; // Use existing image if editing
     
-        // Upload image to Supabase Storage
+        // Upload image only if a new file is selected
         if (file) {
             const fileName = `${Date.now()}_${file.name}`;
-            const { data: uploadData, error: uploadError } = await supabase.storage
+            const {  uploadData, error: uploadError } = await supabase.storage
                 .from('images')
                 .upload(`products/${fileName}`, file);
     
@@ -149,7 +149,7 @@ const Admin = () => {
             }
     
             // Correctly get the public URL
-            const { data: urlData } = supabase.storage
+            const {  urlData } = supabase.storage
                 .from('images')
                 .getPublicUrl(`products/${fileName}`);
     
@@ -169,7 +169,7 @@ const Admin = () => {
             category: productCategory,
             status: productStatus,
             description: productDescription,
-            image: imageUrl,
+            image: imageUrl, // This will be the new image or the existing image
         };
     
         try {
