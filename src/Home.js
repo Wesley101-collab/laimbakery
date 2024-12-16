@@ -4,7 +4,7 @@ import { supabase } from './supabaseClient';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faSun, faMoon, faUser, faComments, faMapMarkerAlt, faPhone, 
-    faChevronLeft, faChevronRight, faEnvelope 
+    faChevronLeft, faChevronRight, faEnvelope, faBars, faTimes 
 } from '@fortawesome/free-solid-svg-icons';
 import logo from './images/logo.jpg';
 const Home = () => {
@@ -14,8 +14,26 @@ const Home = () => {
     const [products, setProducts] = useState([]);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const modalRef = useRef(null);
     
     const footerRef = useRef(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
+
+    const handleProductClick = (product) => {
+        setSelectedProduct(product);
+    };
+
+    const closeModal = (e) => {
+        if (e.target === modalRef.current) {
+            setSelectedProduct(null);
+        }
+    };
 
     const scrollToContact = () => {
         if (footerRef.current) {
@@ -112,13 +130,22 @@ const Home = () => {
     const inquireProduct = (product) => {
         const createProductInquirySession = async () => {
             try {
-                const sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                // Get the existing chat session ID or create a new one
+                const existingSessionId = localStorage.getItem('chatSessionId');
+                const sessionId = existingSessionId || 
+                    Date.now().toString(36) + Math.random().toString(36).substr(2);
+    
+                // Store product inquiry details
                 localStorage.setItem('productInquiry', JSON.stringify({
                     productName: product.name,
                     productImage: product.image,
-                    productPrice: product.price
+                    productPrice: product.price,
+                    timestamp: new Date().toISOString() // Add timestamp to track latest inquiry
                 }));
+    
+                // Always save/update the session ID
                 localStorage.setItem('chatSessionId', sessionId);
+    
                 navigate('/chat');
             } catch (error) {
                 console.error('Error creating inquiry session:', error);
@@ -148,52 +175,95 @@ const Home = () => {
                             <Link to="/">LAIM BAKERY AND PASTRY</Link>
                         </h1>
                     </div>
-                    <div className="flex items-center gap-2 md:gap-4">
+                    
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-4">
                         <button 
                             onClick={scrollToContact} 
-                            className="p-1 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
+                            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
                             title="Contact Information"
                         >
-                            <FontAwesomeIcon 
-                                icon={faEnvelope} 
-                                className="text-sm md:text-base text-gray-600 dark:text-gray-300" 
-                            />
+                            <FontAwesomeIcon icon={faEnvelope} className="text-base text-gray-600 dark:text-gray-300" />
                         </button>
-
                         <button 
                             onClick={toggleTheme} 
-                            className="p-1 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
+                            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
                             title="Toggle Theme"
                         >
-                            <FontAwesomeIcon 
-                                icon={isDarkMode ? faMoon : faSun} 
-                                className="text-sm md:text-base text-amber-500 dark:text-dark-accent" 
-                            />
+                            <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} className="text-base text-amber-500 dark:text-dark-accent" />
                         </button>
                         <Link 
                             to="/admin" 
-                            className="p-1 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
+                            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
                             title="Admin Panel"
                         >
-                            <FontAwesomeIcon 
-                                icon={faUser} 
-                                className="text-sm md:text-base text-gray-600 dark:text-gray-300" 
-                            />
+                            <FontAwesomeIcon icon={faUser} className="text-base text-gray-600 dark:text-gray-300" />
                         </Link>
                         <Link 
                             to="/chat" 
-                            className="p-1 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
+                            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
                             title="Customer Support"
                         >
-                            <FontAwesomeIcon 
-                                icon={faComments} 
-                                className="text-sm md:text-base text-gray-600 dark:text-gray-300" 
-                            />
+                            <FontAwesomeIcon icon={faComments} className="text-base text-gray-600 dark:text-gray-300" />
                         </Link>
                     </div>
+    
+                    {/* Mobile Navigation */}
+                    <div className="flex md:hidden items-center gap-2">
+                        <button 
+                            onClick={toggleTheme} 
+                            className="p-1 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" 
+                            title="Toggle Theme"
+                        >
+                            <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} className="text-sm text-amber-500 dark:text-dark-accent" />
+                        </button>
+                        <button 
+                            onClick={toggleMenu}
+                            className="p-1 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                        >
+                            <FontAwesomeIcon 
+                                icon={isMenuOpen ? faTimes : faBars} 
+                                className="text-sm text-gray-600 dark:text-gray-300"
+                            />
+                        </button>
+                    </div>
+    
+                    {/* Mobile Menu */}
+                    {isMenuOpen && (
+                        <div className="absolute top-full left-0 right-0 bg-white dark:bg-dark-card shadow-lg md:hidden">
+                            <div className="p-4 space-y-4">
+                                <button 
+                                    onClick={() => {
+                                        scrollToContact();
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    <FontAwesomeIcon icon={faEnvelope} className="text-gray-600 dark:text-gray-300" />
+                                    <span className="text-gray-800 dark:text-gray-200">Contact Us</span>
+                                </button>
+                                <Link 
+                                    to="/admin"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    <FontAwesomeIcon icon={faUser} className="text-gray-600 dark:text-gray-300" />
+                                    <span className="text-gray-800 dark:text-gray-200">Admin Panel</span>
+                                </Link>
+                                <Link 
+                                    to="/chat"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    <FontAwesomeIcon icon={faComments} className="text-gray-600 dark:text-gray-300" />
+                                    <span className="text-gray-800 dark:text-gray-200">Customer Support</span>
+                                </Link>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </nav>
-
+    
             <div className="relative w-full overflow-hidden mb-8 mt-16" style={slideConfig}>
                 <div 
                     className="flex transition-transform duration-500 h-full" 
@@ -215,7 +285,7 @@ const Home = () => {
                         </div>
                     )}
                 </div>
-
+    
                 {slides.length > 1 && (
                     <>
                         <button 
@@ -232,20 +302,21 @@ const Home = () => {
                         </button>
                     </>
                 )}
-
+    
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 md:p-8">
                     <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-4">Fresh Bakes Daily</h2>
                     <p className="text-xs md:text-base text-gray-200">Artisanal Pastries & Custom Cakes</p>
                 </div>
             </div>
-
+    
             <div className="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {products.length > 0 ? (
                         products.map(product => (
                             <div 
                                 key={product.id} 
-                                className="bg-white dark:bg-dark-card p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
+                                className="bg-white dark:bg-dark-card p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                                onClick={() => handleProductClick(product)}
                             >
                                 <img 
                                     src={product.image} 
@@ -253,10 +324,16 @@ const Home = () => {
                                     className="w-full h-36 md:h-48 object-cover rounded-lg mb-2 md:mb-4" 
                                 />
                                 <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-base md:text-lg font-semibold dark:text-dark-text truncate">{product.name}</h3>
-                                    <span className="text-sm md:text-base text-amber-600 dark:text-dark-accent font-bold">₦{product.price}</span>
+                                    <h3 className="text-base md:text-lg font-semibold dark:text-dark-text truncate">
+                                        {product.name}
+                                    </h3>
+                                    <span className="text-sm md:text-base text-amber-600 dark:text-dark-accent font-bold">
+                                        ₦{product.price}
+                                    </span>
                                 </div>
-                                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2 md:mb-4 line-clamp-2">{product.description}</p>
+                                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2 md:mb-4 line-clamp-2">
+                                    {product.description}
+                                </p>
                                 <div className="flex justify-between items-center">
                                     <span 
                                         className={`px-2 py-1 rounded-full text-xs ${
@@ -268,7 +345,10 @@ const Home = () => {
                                         {product.status === 'available' ? 'Available' : 'Sold Out'}
                                     </span>
                                     <button 
-                                        onClick={() => inquireProduct(product)} 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            inquireProduct(product);
+                                        }} 
                                         className="px-2 py-1 text-xs md:px-3 md:py-1 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
                                     >
                                         Inquire
@@ -284,13 +364,69 @@ const Home = () => {
                     )}
                 </div>
             </div>
-
+    
+            {/* Product Modal */}
+            {selectedProduct && (
+                <div 
+                    ref={modalRef}
+                    className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+                    onClick={closeModal}
+                >
+                    <div className="bg-white dark:bg-dark-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" 
+                         onClick={e => e.stopPropagation()}>
+                        <div className="p-6">
+                            <img 
+                                src={selectedProduct.image} 
+                                alt={selectedProduct.name} 
+                                className="w-full h-64 object-cover rounded-lg mb-4" 
+                            />
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl md:text-2xl font-bold dark:text-dark-text">
+                                    {selectedProduct.name}
+                                </h2>
+                                <span className="text-lg md:text-xl text-amber-600 dark:text-dark-accent font-bold">
+                                    ₦{selectedProduct.price}
+                                </span>
+                            </div>
+                            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-6">
+                                {selectedProduct.description}
+                            </p>
+                            <div className="flex justify-between items-center">
+                                <span 
+                                    className={`px-3 py-1 rounded-full text-sm ${
+                                        selectedProduct.status === 'available' 
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
+                                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+                                    }`}
+                                >
+                                    {selectedProduct.status === 'available' ? 'Available' : 'Sold Out'}
+                                </span>
+                                <div className="flex gap-3">
+                                    <button 
+                                        onClick={() => inquireProduct(selectedProduct)}
+                                        className="px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
+                                    >
+                                        Inquire Now
+                                    </button>
+                                    <button 
+                                        onClick={() => setSelectedProduct(null)}
+                                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+    
             <footer ref={footerRef} className="bg-amber-100 dark:bg-dark-card transition-colors">
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
                         <div className="text-center md:text-left">
                             <img 
-                                src={logo}
+                                                            src={logo}
                                 alt="LAIM BAKERY Logo" 
                                 className="h-16 md:h-24 mx-auto md:mx-0 mb-2 md:mb-4 rounded-full"
                                 onError={(e) => {
@@ -305,7 +441,7 @@ const Home = () => {
                                 Crafting delicious moments, one pastry at a time.
                             </p>
                         </div>
-
+    
                         <div className="text-center md:text-right">
                             <h4 className="text-base md:text-lg font-bold text-amber-600 dark:text-dark-accent mb-2 md:mb-4">
                                 Contact Us
@@ -325,19 +461,19 @@ const Home = () => {
                                     07074588770
                                 </p>
                                 <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-amber-700 transition-colors"
-                                onClick={() => handleEmailClick('info@laimbakery.com')}>
+                                   onClick={() => handleEmailClick('info@laimbakery.com')}>
                                     <FontAwesomeIcon icon={faEnvelope} className="text-amber-500 mr-2 text-sm" />
                                     info@laimbakery.com
                                 </p>
                                 <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-amber-700 transition-colors"
-                                onClick={() => handleEmailClick('reservations@laimbakery.com')}>
+                                   onClick={() => handleEmailClick('reservations@laimbakery.com')}>
                                     <FontAwesomeIcon icon={faEnvelope} className="text-amber-500 mr-2 text-sm" />
                                     reservations@laimbakery.com
                                 </p>
                             </div>
                         </div>
                     </div>
-
+    
                     <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-amber-200 dark:border-gray-700">
                         <p className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-400">
                             © 2024 LAIM BAKERY AND PASTRY. All rights reserved.
@@ -347,6 +483,7 @@ const Home = () => {
             </footer>
         </div>
     );
+    ;
 };
 
 export default Home;

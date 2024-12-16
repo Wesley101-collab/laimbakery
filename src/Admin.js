@@ -31,6 +31,7 @@ const Admin = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [isChatModalOpen, setIsChatModalOpen] = useState(false);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+    const [chatSessions, setChatSessions] = useState([]);
 
         // NEW LOADING STATES
         const [isLoading, setIsLoading] = useState({
@@ -40,7 +41,8 @@ const Admin = () => {
             deleteProduct: false,
             uploadSlide: false
         });
-    
+
+
     
 
         useEffect(() => {
@@ -108,7 +110,7 @@ const Admin = () => {
     };
 
     const loadExistingProducts = () => {
-        // Already handled by Supabase fetchProducts
+        // Handled by Supabase fetchProducts
     };
 
     const scrollToManageProducts = () => {
@@ -148,7 +150,7 @@ const Admin = () => {
                     throw uploadError;
                 }
     
-                // Get the public URL correctly
+                
                 const { data } = supabase.storage
                     .from('images')
                     .getPublicUrl(`products/${fileName}`);
@@ -227,8 +229,8 @@ const Admin = () => {
     };
 
     const updateStats = () => {
-        setActiveOrders(3); // Placeholder value; replace with actual logic
-        setPendingChats(0); // Placeholder value; replace with actual logic
+        setActiveOrders(3); 
+        setPendingChats(0); 
     };
     const countPendingChats = (chatSessions) => {
         const unreadCount = chatSessions.reduce((acc, session) => acc + session.unreadCount, 0);

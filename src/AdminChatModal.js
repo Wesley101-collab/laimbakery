@@ -175,7 +175,7 @@ const AdminChatModal = ({ isOpen, onClose, onPendingChatsUpdate }) => {
             // Clear local state
             setMessages([]);
 
-            // Optional: You might want to deselect the session or show a toast/notification
+            
             // setSelectedSession(null);
         } catch (error) {
             console.error('Error clearing chat:', error);

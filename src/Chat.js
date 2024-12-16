@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
+import {
     collection, 
     query, 
     where, 
@@ -9,7 +9,8 @@ import {
     getDoc,
     doc,
     setDoc,
-    limit
+    limit,
+    getDocs  // Add this import
 } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from './firebase';
@@ -206,19 +207,38 @@ const Chat = () => {
     // Add Product Inquiry Message
     const addProductInquiryMessage = useCallback(async () => {
         if (productInquiry) {
-            const inquiryMessage = {
-                message: `Hello! I'm interested in the ${productInquiry.productName || 'product'}. Is it currently available?`,
-                timestamp: new Date().toISOString(),
-                sessionId,
-                isUser: true,
-                files: productInquiry.productImage ? [{
-                    name: productInquiry.productName || 'Product Image',
-                    type: 'image',
-                    url: productInquiry.productImage
-                }] : []
-            };
-
-            await addDoc(collection(db, 'messages'), sanitizeMessageData(inquiryMessage));
+            // Check if this inquiry is different from previous ones
+            const existingInquiries = await getDocs(
+                query(
+                    collection(db, 'messages'), 
+                    where('sessionId', '==', sessionId),
+                    where('type', '==', 'product_inquiry')
+                )
+            );
+    
+            const isDuplicateInquiry = existingInquiries.docs.some(doc => {
+                const data = doc.data();
+                return data.productName === productInquiry.productName;
+            });
+    
+            if (!isDuplicateInquiry) {
+                const inquiryMessage = {
+                    message: `Hello! I'm interested in the ${productInquiry.productName || 'product'}. Is it currently available?`,
+                    timestamp: new Date().toISOString(),
+                    sessionId,
+                    isUser: true,
+                    type: 'product_inquiry', // Add type to help identify product inquiries
+                    productName: productInquiry.productName,
+                    files: productInquiry.productImage ? [{
+                        name: productInquiry.productName || 'Product Image',
+                        type: 'image',
+                        url: productInquiry.productImage
+                    }] : []
+                };
+    
+                await addDoc(collection(db, 'messages'), sanitizeMessageData(inquiryMessage));
+            }
+    
             setProductInquiry(null);
         }
     }, [productInquiry, sessionId, sanitizeMessageData]);
