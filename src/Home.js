@@ -12,13 +12,48 @@ const Home = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [slides, setSlides] = useState([]);
     const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const modalRef = useRef(null);
-    
     const footerRef = useRef(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    // New state for categories and search
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Categories
+    const CATEGORIES = [
+        'All', 
+        'Cakes', 
+        'Pastries', 
+        'Bread', 
+        'Cookies'
+    ];
+
+    // Filter and search logic
+    useEffect(() => {
+        let result = products;
+
+        // Category filter
+        if (selectedCategory !== 'All') {
+            result = result.filter(product => 
+                product.category.toLowerCase() === selectedCategory.toLowerCase()
+            );
+        }
+
+        // Search filter
+        if (searchTerm) {
+            result = result.filter(product => 
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        setFilteredProducts(result);
+    }, [products, selectedCategory, searchTerm]);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -310,116 +345,152 @@ const Home = () => {
             </div>
     
             <div className="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {products.length > 0 ? (
-                        products.map(product => (
-                            <div 
-                                key={product.id} 
-                                className="bg-white dark:bg-dark-card p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
-                                onClick={() => handleProductClick(product)}
-                            >
-                                <img 
-                                    src={product.image} 
-                                    alt={product.name} 
-                                    className="w-full h-36 md:h-48 object-cover rounded-lg mb-2 md:mb-4" 
-                                />
-                                <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-base md:text-lg font-semibold dark:text-dark-text truncate">
-                                        {product.name}
-                                    </h3>
-                                    <span className="text-sm md:text-base text-amber-600 dark:text-dark-accent font-bold">
-                                        ₦{product.price}
-                                    </span>
-                                </div>
-                                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2 md:mb-4 line-clamp-2">
-                                    {product.description}
-                                </p>
-                                <div className="flex justify-between items-center">
-                                    <span 
-                                        className={`px-2 py-1 rounded-full text-xs ${
-                                            product.status === 'available' 
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
-                                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
-                                        }`}
-                                    >
-                                        {product.status === 'available' ? 'Available' : 'Sold Out'}
-                                    </span>
-                                    <button 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            inquireProduct(product);
-                                        }} 
-                                        className="px-2 py-1 text-xs md:px-3 md:py-1 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
-                                    >
-                                        Inquire
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center p-6 rounded-lg bg-white dark:bg-dark-card shadow-lg">
-                            <h3 className="text-lg font-semibold dark:text-dark-text">No Products Available</h3>
-                            <p className="text-gray-600 dark:text-gray-400">Currently, there are no products available for purchase.</p>
-                        </div>
-                    )}
+                {/* Search and Category Filtering Section */}
+            <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+                {/* Search Input */}
+                <div className="w-full max-w-md">
+                    <input 
+                        type="text" 
+                        placeholder="Search products..." 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-full bg-white dark:bg-dark-card dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                </div>
+
+                {/* Category Selector */}
+                <div className="flex gap-2 overflow-x-auto">
+                    {CATEGORIES.map((category) => (
+                        <button
+                            key={category}
+                            onClick={() => setSelectedCategory(category)}
+                            className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                                selectedCategory === category 
+                                    ? 'bg-amber-500 text-white' 
+                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            }`}
+                        >
+                            {category}
+                        </button>
+                    ))}
                 </div>
             </div>
-    
-            {/* Product Modal */}
-            {selectedProduct && (
-                <div 
-                    ref={modalRef}
-                    className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-                    onClick={closeModal}
-                >
-                    <div className="bg-white dark:bg-dark-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" 
-                         onClick={e => e.stopPropagation()}>
-                        <div className="p-6">
+            
+                  {/* Products Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {filteredProducts.length > 0 ? (
+                    filteredProducts.map(product => (
+                        <div 
+                            key={product.id} 
+                            className="bg-white dark:bg-dark-card p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                            onClick={() => handleProductClick(product)}
+                        >
                             <img 
-                                src={selectedProduct.image} 
-                                alt={selectedProduct.name} 
-                                className="w-full h-64 object-cover rounded-lg mb-4" 
+                                src={product.image} 
+                                alt={product.name} 
+                                className="w-full h-36 md:h-48 object-cover rounded-lg mb-2 md:mb-4" 
                             />
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl md:text-2xl font-bold dark:text-dark-text">
-                                    {selectedProduct.name}
-                                </h2>
-                                <span className="text-lg md:text-xl text-amber-600 dark:text-dark-accent font-bold">
-                                    ₦{selectedProduct.price}
+                            <div className="flex justify-between items-center mb-2">
+                                <h3 className="text-base md:text-lg font-semibold dark:text-dark-text truncate">
+                                    {product.name}
+                                </h3>
+                                <span className="text-sm md:text-base text-amber-600 dark:text-dark-accent font-bold">
+                                    ₦{product.price}
                                 </span>
                             </div>
-                            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-6">
-                                {selectedProduct.description}
+                            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2 md:mb-4 line-clamp-2">
+                                {product.description}
                             </p>
                             <div className="flex justify-between items-center">
                                 <span 
-                                    className={`px-3 py-1 rounded-full text-sm ${
-                                        selectedProduct.status === 'available' 
+                                    className={`px-2 py-1 rounded-full text-xs ${
+                                        product.status === 'available' 
                                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
                                             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
                                     }`}
                                 >
-                                    {selectedProduct.status === 'available' ? 'Available' : 'Sold Out'}
+                                    {product.status === 'available' ? 'Available' : 'Sold Out'}
                                 </span>
-                                <div className="flex gap-3">
-                                    <button 
-                                        onClick={() => inquireProduct(selectedProduct)}
-                                        className="px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
-                                    >
-                                        Inquire Now
-                                    </button>
-                                    <button 
-                                        onClick={() => setSelectedProduct(null)}
-                                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                                    >
-                                        Close
-                                    </button>
-                                </div>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        inquireProduct(product);
+                                    }} 
+                                    className="px-2 py-1 text-xs md:px-3 md:py-1 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
+                                >
+                                    Inquire
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center p-6 rounded-lg bg-white dark:bg-dark-card shadow-lg">
+                        <h3 className="text-lg font-semibold dark:text-dark-text">No Products Found</h3>
+                        <p className="text-gray-600 dark:text-gray-400">
+                            {products.length > 0 
+                                ? "No products match your search or selected category." 
+                                : "Currently, there are no products available."}
+                        </p>
+                    </div>
+                )}
+            </div>
+        </div>
+    
+            {/* Product Modal */}
+        {selectedProduct && (
+            <div 
+                ref={modalRef}
+                className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+                onClick={closeModal}
+            >
+                <div className="bg-white dark:bg-dark-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" 
+                     onClick={e => e.stopPropagation()}>
+                    <div className="p-6">
+                        <img 
+                            src={selectedProduct.image} 
+                            alt={selectedProduct.name} 
+                            className="w-full h-64 object-cover rounded-lg mb-4" 
+                        />
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl md:text-2xl font-bold dark:text-dark-text">
+                                {selectedProduct.name}
+                            </h2>
+                            <span className="text-lg md:text-xl text-amber-600 dark:text-dark-accent font-bold">
+                                ₦{selectedProduct.price}
+                            </span>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-6">
+                            {selectedProduct.description}
+                        </p>
+                        <div className="flex justify-between items-center">
+                            <span 
+                                className={`px-3 py-1 rounded-full text-sm ${
+                                    selectedProduct.status === 'available' 
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
+                                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+                                }`}
+                            >
+                                {selectedProduct.status === 'available' ? 'Available' : 'Sold Out'}
+                            </span>
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => inquireProduct(selectedProduct)}
+                                    className="px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
+                                >
+                                    Inquire Now
+                                </button>
+                                <button 
+                                    onClick={() => setSelectedProduct(null)}
+                                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
+        )}
     
             <footer ref={footerRef} className="bg-amber-100 dark:bg-dark-card transition-colors">
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
