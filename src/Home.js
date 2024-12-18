@@ -520,7 +520,7 @@ const Home = () => {
                             <div className="space-y-1 md:space-y-2">
                                 <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
                                     <FontAwesomeIcon icon={faMapMarkerAlt} className="text-amber-500 mr-2 text-sm" />
-                                    15 Isiak Adetunji Adeleke Free way,<br />
+                                    15 Isiaka Adetunji Adeleke Free way,<br />
                                     Oke Fia Osogbo
                                 </p>
                                 <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
